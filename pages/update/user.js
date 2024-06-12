@@ -1,18 +1,40 @@
-import {
-  Card,
-  Row,
-  Col,
-  CardTitle,
-  CardBody,
-  Button,
-  Form,
-  FormGroup,
-  Label,
-  Input,
-  FormText,
-} from 'reactstrap';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import {Card, Row, Col, CardTitle, CardBody, Button, Form, FormGroup, Label, Input, FormText} from 'reactstrap';
+import { useRouter } from 'next/router';
+
+const fetchUsers = async (token) => {
+  try {
+    const response = await axios.get('http://localhost:3001/update/user', {
+      headers: {
+        Authorization: token
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    return [];
+  }
+};
 
 const Forms = () => {
+  const [users, setUsers] = useState([]);
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      router.push('/log-in');
+      return;
+    }
+
+    const fetchData = async () => {
+      const userData = await fetchUsers(token);
+      setUsers(userData);
+    };
+    fetchData();
+  }, [router]);
+
   return (
     <Row>
       <Col>

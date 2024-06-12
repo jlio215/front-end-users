@@ -3,16 +3,15 @@ import axios from 'axios';
 import { Card, CardBody, CardTitle, CardSubtitle, Table, Button } from 'reactstrap';
 import Image from 'next/image';
 import user5 from '../../assets/images/users/user4.jpg';
-import { Link } from 'flowbite-react';
+import { useRouter } from 'next/router';
 
-const fetchUsers = async () => {
+const fetchUsers = async (token) => {
   try {
     const response = await axios.get('http://localhost:3001/usuarios/', {
       headers: {
-        Authorization: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjY1ZmM1ZmRhZWQ1YzcxY2YzNjgyODkiLCJub21icmUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AZ21haWwuY29tIiwicGFzc3dvcmQiOiIkMmEkMTAkVmNOa0dKM2owS2FwcjN2UHlqbW5TLnFPb0hjcjhzUzkyQVBtYTg5S05kdHRKTDRuWVBnUnEiLCJyb2wiOiJBZG1pbmlzdHJhZG9yIiwiaWF0IjoxNzE4MDU1NjM0LCJleHAiOjE3MTgwNjI4MzR9.LeGFS3I5qh7LL5s1KlAeiw48LWfOSKsb1KXTbZPIprg'
+        Authorization: token
       }
     });
-    console.log(response.data);
     return response.data;
   } catch (error) {
     console.error('Error fetching users:', error);
@@ -22,14 +21,21 @@ const fetchUsers = async () => {
 
 const UsersTable = () => {
   const [users, setUsers] = useState([]);
-
+  const router = useRouter();
+  
   useEffect(() => {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      router.push('/log-in');
+      return;
+    }
+
     const fetchData = async () => {
-      const userData = await fetchUsers();
+      const userData = await fetchUsers(token);
       setUsers(userData);
     };
     fetchData();
-  }, []);
+  }, [router]);
 
   const handleClick = (id) => {
     console.log(id)
